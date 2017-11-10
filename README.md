@@ -46,6 +46,11 @@ App Programming Guide for iOS 문서 정리 작업
   * [What to Do When Your App Enters the Background (foregraound ->backgraound)](#chapter4-4)
   * [Reduce Your Memory Footprint)](#chapter4-5)
 * [chapter 5. Strategies for Implementing Specific App Features](#chapter5)
+  * [1. Privacy Strategies](#chapter5-1)
+  * [2. Respecting Restrictions](#chapter5-2)
+  * [3. Supporting Multiple Versions of iOS](#chapter5-3)
+  * [4. Preserving Your App’s Visual Appearance Across Launches](#chapter5-4)
+  * [5. Tips for Developing a VoIP App](#chapter5-5)
 
 
 
@@ -704,3 +709,105 @@ TODO: 무슨 말인지 잘 이해가 안된다.
 <a name="chapter5"></a>
 
 # chapter 5. Strategies for Implementing Specific App Features
+
+ 서로간에 다른 앱들은 각각 다른 필요를 가지고 있지만, 이 안에서도 일부 공통되게 나타나는 앱들의 특징이 있습니다. 이 세션에서는 앱마다 공통으로 나타나는 몇가지 특정 유형에 대해서 기능을 구현하는 방법에 대해서 다루겠습니다.
+
+<a name="chapter5-1"></a>
+
+### 1. Privacy Strategies
+
+ 사용자의 개인 정보를 보호하는 것은 앱 디자인에서 중요한 고려 사항입니다. 개인 정보 보호에는 사용자의 신원 및 개인 정보를 포함하여 사용자의 데이터를 보호하는 것이 포함됩니다. 시스템 프레임 워크는 이미 연락처와 같은 데이터를 관리하기 위해 개인 정보 제어 기능을 제공하지만 앱은 로컬에서 사용하는 데이터를 보호하기위한 조치를 취해야합니다.
+
+<a name="chapter5-1-1"></a>
+
+* ### Protecting Data Using On-Disk Encryption
+
+  * 하드웨어를 이용한 데이터 보호는 디스크에 암호화된 데이터를 저장하고 필요할 때 꺼내쓰는 방식입니다. 사용자의 기기가 잠겨있는 동안에는 해당 파일을 만든 앱까지 접근 할 수 없기 때문에 파일을 해독할 수 없습니다. 앱이 보호된 파일에 접근하기 위해서는 추가적으로 사용자가 비밀번호를 입력해서 잠금을 해제해야 합니다.
+  * 데이터 보호는 대부분의 iOS 기기에서 사용할 수 있으며 다음 요구 사항을 준수해야합니다.
+    * 사용자 장치의 파일 시스템이 데이터 보호를 지원해야합니다. 대부분의 장치는이 동작을 지원합니다.
+    * 사용자는 장치에 대해 활성화 된 암호 잠금을 설정해야합니다.
+  *  `NSData` 클래스 또는 `NSFileManager` 클래스를 사용하여 원하는 수준의 보호 속성을 추가 할 수 있습니다. 새로운 파일을 작성할 때 `NSData의 writeToFile : options : error : `를 사용 할 수 있습니다. 기존 파일의 경우에는 `NSFileManager`의 `setAttributes : ofItemAtPath : error :` 메서드를 사용하여 `NSFileProtectionKey`의 값을 설정하거나 변경할 수 있습니다.
+  * 이러한 방법을 사용할 때 파일에 대해 다음 보호 수준 중 하나를 지정하십시오.
+    * **보호 없음** - 파일은 암호화되지만 패스 코드로 보호되지 않으며 장치가 잠길 때 사용할 수 있습니다. `NSDataWritingFileProtectionNone` 옵션 또는 `NSFileProtectionNone` 속성을 지정하십시오.
+    * **완료** - 장치가 잠겨있는 동안 파일이 암호화되어 액세스 할 수 없습니다. `NSDataWritingFileProtectionComplete` 옵션또는 `NSFileProtectionComplete` 속성을 지정하십시오.
+    * **이미 열려 있지 않으면 완료** - 파일이 암호화됩니다. 장치가 잠겨있는 동안 닫힌 파일에 액세스 할 수 없습니다. 사용자가 장치를 잠금 해제하면 앱에서 파일을 열고 사용할 수 있습니다. 하지만 파일이 열려있는 동안 사용자가 기기를 잠그면 앱에서 계속 액세스 할 수 있습니다. `NSDataWritingFileProtectionCompleteUnlessOpen` 옵션 또는 `NSFileProtectionCompleteUnlessOpen` 속성을 지정하십시오.
+    * **처음 로그인 할 때까지 완료** - 장치가 부팅되고 사용자가 잠금을 해제 할 때까지 파일이 암호화되어 액세스 할 수 없습니다. `NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication` 옵션 또는 `NSFileProtectionCompleteUntilFirstUserAuthentication` 특성을 지정하십시오.
+  *  파일을 보호하는 경우 앱에서 해당 파일에 대한 액세스 권한을 잃을 준비가되어 있어야합니다. 완전한 파일 보호가 활성화되면 사용자가 장치를 잠그면 앱은 파일의 내용을 읽고 쓸 수 없습니다. 다음 기술 중 하나를 사용하여 보호 된 파일의 상태에 대한 변경 사항을 추적 할 수 있습니다.
+    * 앱 대리자는 `applicationProtectedDataWillBecomeUnavailable :` 및 `applicationProtectedDataDidBecomeAvailable :` 메소드를 구현할 수 있습니다.
+    * 모든 개체는 `UIApplicationProtectedDataWillBecomeUnavailable` 및 `UIApplicationProtectedDataDidBecomeAvailable` 알림을 등록 할 수 있습니다.
+    * 모든 개체는 공유 `UIApplication` 개체의` protectedDataAvailable` 속성 값을 검사하여 파일에 현재 액세스 할 수 있는지 여부를 결정할 수 있습니다.
+  *  새 파일의 경우 데이터를 쓰기 전에 데이터 보호를 활성화하는 것이 좋습니다. `writeToFile : options : error :`메서드를 사용하여` NSData` 객체의 내용을 디스크에 쓰는 경우이 작업은 자동으로 수행됩니다. 기존 파일의 경우 데이터 보호를 추가하면 보호되지 않은 파일이 새 보호 버전으로 바뀝니다.
+
+<a name="chapter5-1-2"></a>
+
+* ### Identifying Unique Users of Your App
+
+    앱의 한 사용자와 다른 사용자를 차별화해야하는 경우 iOS에서는이를 수행하는 데 도움이되는 식별자를 제공합니다. 그러나 더 높은 수준의 보안이 필요한 경우 스스로 더 많은 작업을 수행해야 할 수도 있습니다. 예를 들어 금융 서비스를 제공하는 앱은 사용자에게 로그인 자격 증명을 요구하여 사용자가 특정 계정에 액세스 할 권한이 있는지 확인하려고 할 것입니다.
+
+   사용자를 식별 할 때 얻는 정보로 무엇을 할 것인지 항상 투명해야합니다. 사용자가 식별되어 사용자를 추적할 수 있도록 하면 안됩니다.
+
+  다음은 사용자를 식별하는 데 필요한 몇 가지 일반적인 시나리오와이를 구현하는 방법에 대한 솔루션입니다.
+
+  * **당신은 사용자를 서버의 특정 계정에 연결하려고합니다.** 사용자가 계정 정보를 안전하게 입력해야하는 **로그인 화면을 포함하십시오.** 사용자가 수집 한 **계정 정보는 암호화 된 형식으로 저장**하여 항상 보호하십시오.
+  *  다른 기기에서 실행중인 앱의 인스턴스를 차별화하려는 경우 **한 장치의 사용자와 다른 장치의 사용자를 구별하는 ID를 얻으려면** `UIDevice` 클래스의 `identifierForVendor` 속성을 사용합니다. 이 기술을 통해 특정 사용자를 식별 할 수 있습니다. 단일 사용자는 각각 다른 ID 값을 갖는 여러 장치를 가질 수 있습니다.
+  * **광고 목적으로 사용자를 식별하려고합니다.** `ASIdentifierManager` 클래스의 `advertisingIdentifier` 특성을 사용하여 사용자의 ID를 확보하십시오.
+
+<a name="chapter5-2"></a>
+
+### 2. [Respecting Restrictions](https://developer.apple.com/library/content/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/StrategiesforImplementingYourApp/StrategiesforImplementingYourApp.html#//apple_ref/doc/uid/TP40007072-CH5-SW23)
+
+ 사용자는 앱에서 소비하려는 미디어의 등급을 지정하는 제한을 설정할 수 있습니다. 앱이 제한 사항에 따라 미디어를 재생하거나 동작을 수정하는 경우 현재 설정을 결정하고 설정이 변경 될 때 응답해야합니다.
+
+ 책을 금지시키거나 음악 비디오 등을 금지 시킬 수 있다. 필요시 링크로 가서 확인 할 것.
+
+<a name="chapter5-3"></a>
+
+### 3. Supporting Multiple Versions of iOS
+
+ 다양한 버전을 지원하는 앱은 이전 버전의 IOS에서 지원하지 않는 최신 버전의 API를 사용하지 못하도록 검사를 사용해야 합니다. 런타임 검사는 현재 운영 체제에서 사용할 수없는 기능을 사용하려고 시도 할 때 앱이 충돌하지 않도록합니다.
+
+다음 방법으로 체크할 수 있습니다.
+
+* 클래스가 존재하는지 여부를 판별하려면 해당 Class 객체가 nil인지 확인하십시오. 링커는 알 수없는 클래스 객체에 대해 nil을 반환하므로 다음과 유사한 조건부 검사를 사용할 수 있습니다.
+
+  * ```
+    if ([UIPrintInteractionController class]) {
+       // Create an instance of the class and use it.
+    }
+    else {
+       // The print interaction controller is not available so use an alternative technique.
+    }
+    ```
+
+* 메소드가 기존 클래스에서 사용 가능한지 판별하려면 `instancesRespondToSelector : class` 메소드 또는 `respondsToSelector : instance` 메소드를 사용하십시오.
+
+* C언어 기반의 함수가 동작하는지 확인하려면 이름과 BOOL 비교를 수행하면 됩니다.
+
+  * ```
+    if (UIGraphicsBeginPDFPage != NULL) {
+        UIGraphicsBeginPDFPage();
+    }
+    ```
+
+<a name="chapter5-4"></a>
+
+### 4. Preserving Your App’s Visual Appearance Across Launches
+
+ 백그라운드의 앱이 언제나 포어그라운드로 돌아오는 것은 아닙니다. 어떤 시점에서 포어그라운드 앱의 메모리를 확보하기 위해 백그라운드의 앱이 종료될지 모릅니다. 하지만 사용자 입장에서는 일시적인 중단으로 보여야합니다. 해당 앱으로 돌아오면 사용자는 항상 마지막 시점으로 돌아와야 함으로 진행중이던 모든 작업을 되돌려야합니다. UIKit를 사용해 비교적 쉽게 구현 할 수 있습니다.
+
+앱의 상태 보존에 대해 생각해야하는 세 가지 위치가 있습니다.
+
+1. 앱의 최상위 상태를 관리하는 앱 델리게이트
+2. 앱의 사용자 인터페이스에 대한 전반적인 상태를 관리하는 앱의 뷰 컨트롤러
+3. 앱의 커스텀 뷰에는 일부 맞춤 데이터가 보존되어야 할 수 있습니다.
+
+* #### 앱의 상태 보존 및 복원 활성화
+
+* ​
+
+
+
+<a name="chapter5-5"></a>
+
+### 5. Tips for Developing a VoIP App
+
