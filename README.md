@@ -40,6 +40,11 @@ App Programming Guide for iOS 문서 정리 작업
   * [6. Being a Responsible Background App](#chapter3-6)
   * [7. Opting Out of Background Execution](#chapter3-7)
 * [Chapter 4. Strategies for Handling App State Transitions](#chapter4)
+  * [What to Do at Launch Time (not running -> inactive)](#chapter4-1)
+  * [What to Do When Your App Is Interrupted Temporarily (active <-->inactive)](#chapter4-2)
+  * [What to Do When Your App Enters the Foreground (backgaound->foregraound)](#chapter4-3)
+  * [What to Do When Your App Enters the Background (foregraound ->backgraound)](#chapter4-4)
+  * [Reduce Your Memory Footprint)](#chapter4-5)
 * [chapter 5. Strategies for Implementing Specific App Features](#chapter5)
 
 
@@ -578,6 +583,8 @@ TODO: 무슨 말인지 잘 이해가 안된다.
 
  런타임 중 모든 앱의 상태에 대해서 시스템은 각각에 다른 예상을 가지고 있습니다. 상태의 전환이 일어나면 시스템은 앱에 알리고 앱은 앱의 델리게이트에 알립니다. UIApplicationDelegate 프로토콜의 상태 전이 메소드를 사용하여 이러한 상태 변경을 감지하고 적절히 대응할 수 있습니다. 예를 들어 포어그라운드에서 백 그라운드로 전환 할 때 저장되지 않은 데이터를 기록하고 진행중인 작업을 중지 할 수 있습니다. 다음 섹션에서는 상태 전환 코드를 구현하는 방법에 대한 팁과 지침을 제공합니다. (안드로이드의 액티비티 생명주기로 앱의 상태를 저장하는 것처럼 IOS도 상태가 전환되기 전에 호출되는 메소드들을 이용해서 상태를 저장 할 수 있다.)
 
+<a name=chapter4-1></a>
+
 * ### What to Do at Launch Time (not running -> inactive)
 
   * 앱이 실행되면 델리게이트의 `application:willFinishLaunchingWithOptions:` 메소드와`application:didFinishLaunchingWithOptions:`메소드가 호출됩니다.
@@ -593,13 +600,14 @@ TODO: 무슨 말인지 잘 이해가 안된다.
     * `shouldAutorotateToInterfaceOrientation:` 메소드를 재정의하고 왼쪽이나 오른쪽 가로보기를 YES로 세로보기를 NO로 설정하시오.
   * **앱은 항상 윈도우 기반으로 뷰 컨트롤러를 사용해야 합니다.**
 
-  ​
+  <a name=chapter4-2></a>
 
 * ### What to Do When Your App Is Interrupted Temporarily 
 
   ### (active <-->inactive)
 
   * 얼럿 기반의 간섭으로 인해 앱의 컨트롤을 잃을 수 있습니다. 앱은 계속 포어 그라운드에서 돌고있지만 시스템으로부터 터치 이벤트를 받지 못한다. 이 동안 가속도계 이벤트 같은 얼럿 기반의 이벤트가 계속 수신됩니다. 이런 상태 전환에 대한 대응으로 개발자는 `applicationWillResignActive :`에서 다음과 같은 작업을 수행해야 합니다.
+
     * 데이터 및 상태 정보를 저장하십시오.
     * 타이머 및 기타 주기적인 작업을 중지합니다.
     * 실행중인 메타 데이터 쿼리를 모두 중지하십시오.
@@ -608,31 +616,53 @@ TODO: 무슨 말인지 잘 이해가 안된다.
     * 앱이 게임 인 경우 일시 중지 상태로 들어갑니다.
     * OpenGL ES 프레임 속도를 다시 조절합니다.
     * 중요하지 않은 코드를 실행하는 모든 디스패치 대기열 또는 작업 대기열을 일시 중단합니다. 비활성 상태에서 네트워크 요청 및 기타 시간에 민감한 백그라운드 작업을 계속 처리 할 수 있습니다.
+
   * 앱이 활성 상태로 다시 이동하면 `applicationDidBecomeActive :` 메소드는 앞서 정지했던 모든 기능들을 다시 활성화 시켜야 합니다. 타이머를 다시 시작하고 디스패치 대기열을 다시 시작하고 OpenGL ES 프레임 속도를 다시 조절해야합니다. 그러나 게임이 자동으로 재개되지 않아야합니다. 사용자가 다시 시작할 때까지 일시 중지 상태를 유지해야합니다.
+
   * 항상 중요 지점마다 사용자 정보를 저장하십시오. 당신이 강제로 저장되지 않은 데이터를 저장하려해도 앱은 기다려 주지 않습니다.
+
   * 걸려 오는 전화 통화와 같은 알림 기반 중단이 발생하면 앱이 일시적으로 비활성 상태로 전환되어 시스템에서 진행 방법을 사용자에게 알릴 수 있습니다. 사용자가 알림을 닫을 때까지 앱은이 상태로 유지됩니다. 이 시점에서 앱은 활성 상태로 돌아가거나 백그라운드 상태로 이동합니다. 그림 4-3은 경고 기반 중단이 발생할 때 앱을 통한 이벤트 흐름을 보여줍니다.
+
   * 아래는 전화가 걸려왔을 때 백그라운로 넘어가기 전 개발자가 처리해야 할 구간을 알려줍니다.
+
   * ![전화가 올 때](https://developer.apple.com/library/content/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/Art/app_interruptions_2x.png)
+
   * 작업 표시줄에 등장하는 배너 형태의 얼럿은 앱을 일시 정지시키지는 않습니다. 하지만 사용자가 배너의 내용을 보기 위해서 작업 표시줄을 아래로 내리면 앱이 비활성 상태로 넘어갑니다.
+
+    <a name=chapter4-3></a>
 
 * ### What to Do When Your App Enters the Foreground
 
   ### (backgaound->foregraound)
 
   * 포어 그라운드로 돌아가는 것은 앱이 백그라운드로 이동할 때 중단된 작업을 다시 시작할 수있는 기회입니다. 포어 그라운드로 이동할 때 발생하는 단계가 아래 그림에 나와 있습니다. `applicationWillEnterForeground :` 메서드는 `applicationDidEnterBackground :` 메서드에서 수행 된 모든 작업을 취소하고 `applicationDidBecomeActive :` 메서드는 실행시와 동일한 활성화 작업을 계속 수행해야합니다.
+
   * ![enter foregraound](https://developer.apple.com/library/content/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/Art/app_enter_foreground_2x.png)
+
   *  suspended 상태의 앱은 포어 그라운드나 백그라운드 상태로 돌아갔을 때 처리해야 할 얼럿들을 큐로 만들어 준비해둬야 합니다. 일시 중지 된 앱은 코드를 실행하지 않으므로 방향 변경, 시간 변경, 환경 설정 변경 등 앱의 모양이나 상태에 영향을주는 많은 알림을 처리 할 수 없습니다. 이러한 변경 사항이 손실되지 않도록하기 위해 시스템은 많은 알림을 대기열에두고 코드 실행을 다시 시작하는 즉시 (포 그라운드 또는 백그라운드에서) 앱에 전달합니다. 알림이 중복되지 않도록 병합하여 앱에 전달합니다.
+
   * 아래 표에는 병합될 수 있는 알림들이 나눠져 있습니다. 대부분의 알림은 담당하는 옵저버에게 전달되지만 기기 방향 변환의 경우는 시스템의 프레임워크에 직접 전달됩니다.
+
   * [**Table 4-1**Notifications delivered to waking apps](https://developer.apple.com/library/content/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/StrategiesforHandlingAppStateTransitions/StrategiesforHandlingAppStateTransitions.html#//apple_ref/doc/uid/TP40007072-CH8-SW7) 이론에서 중요하지 않아 읽고 넘어감 실제 구현에서 필요시 찾아 읽을 것
+
   * 대부분의 앱은 이런 알림 큐를 사용자 터치 이벤트보다 먼저 수행하기 때문에 여기서 시간이 지체되지 않도록 해야한다.
+
   * 어떤 이유로 든 iCloud의 상태가 변경되면 시스템은 앱에` NSUbiquityIdentityDidChangeNotification `알림을 전달합니다. 사용자가 iCloud 계정에 로그인하거나 로그 아웃하거나 문서와 데이터의 동기화를 활성화 또는 비활성화하면 iCloud의 상태가 변경됩니다.
+
   *  앱이 일시 중지 된 상태에서 사용자가 현재 로케일을 변경하면 `NSCurrentLocaleDidChangeNotification` 알림을 사용하여 앱이 포 그라운드로 돌아갈 때 날짜, 시간 및 숫자와 같은 로케일에 민감한 정보를 포함하는 모든보기를 강제로 업데이트 할 수 있습니다. 물론 로케일 관련 문제를 피하는 가장 좋은 방법은 뷰를 쉽게 업데이트 할 수 있도록 코드를 작성하는 것입니다. 예 :
+
     * NSLocale 객체를 검색 할 때 `autoupdatingCurrentLocale` 클래스 메소드를 사용하십시오. 이 메소드는, 변경에 응해 자동적으로 갱신되는 로케일 객체를 돌려줍니다. 따라서, 그것을 재 작성할 필요는 없습니다. 그러나 로캘이 변경되면 현재 로캘에서 파생 된 콘텐츠가 포함 된보기를 새로 고쳐야합니다.
     * 현재 로케일 정보가 변경 될 때마다 캐시 된 날짜 및 숫자 포맷터 객체를 다시 작성하십시오.
+
   * 앱의 설정이 변경되는 경우 알림큐에 넣어 놓는 것이 중요합니다. 예를들어 사용자가 백그라운드에서 로그아웃한 경우, 사용자의 로그아웃 정보를 포어 그라운드에 진입하기 전에 갱신하지 않는다면, 개인정보를 유출할 수 있습니다.
+
   * `NSUserDefaultsDidChangeNotification` 알림을 받으면 앱은 관련 설정을 다시로드하고 필요한 경우 사용자 인터페이스를 적절하게 재설정해야합니다. 암호 또는 기타 보안 관련 정보가 변경된 경우 이전에 표시된 정보를 숨기고 사용자가 새 암호를 입력하도록해야합니다.
 
+    <a name=chapter4-4></a>
+
 * ### What to Do When Your App Enters the Background
+
+  ### (foregraound ->backgraound)
 
   포 그라운드에서 백그라운드 실행으로 이동할 때는 앱 델리게이트의 `applicationDidEnterBackground :` 메소드를 사용하여 다음을 수행하십시오:
 
@@ -643,6 +673,8 @@ TODO: 무슨 말인지 잘 이해가 안된다.
    `applicationDidEnterBackground :` 메소드는 약 5 초 동안 모든 작업을 완료하고 돌아갑니다. 실제로 이 방법은 가능한 빨리 반환해야합니다. 시간이 다 떨어지기 전에 메서드가 반환되지 않으면 앱이 종료되고 메모리에서 제거됩니다. 작업 수행에 더 많은 시간이 필요한 경우 `beginBackgroundTaskWithExpirationHandler : `메소드를 호출하여 백그라운드 실행 시간을 요청한 다음 보조 스레드에서 장기 실행 작업을 시작하십시오. **백그라운드 작업을 시작하는지 여부에 관계없이 `applicationDidEnterBackground : `메서드는 5 초 이내에 종료해야합니다.**
 
   > 앱의 기능에 따라 앱이 백그라운드로 이동할 때해야 할 다른 것들이 있습니다. 예를 들어, 활성화 된 Bonjour 서비스는 일시 중지되어야하며 앱은 OpenGL ES 기능 호출을 중지해야합니다. 상단의 Chapter3을 참고하십시오.
+
+  <a name=chapter4-5></a>
 
 * ### Reduce Your Memory Footprint
 
