@@ -8,11 +8,22 @@ App Programming Guide for iOS 문서 정리 작업
 
 
 
+## 목차
+
+* [chapter 1. Expected App Behaviors](#chapter1)
+* [chapter 2. The App Life Cycle](#chapter2)
+* [chapter 3. Background Execution](#chapter3)
+* [Chapter 4. Strategies for Handling App State Transitions](#chapter4)
+
+
+
 ### About iOS App Architecture
 
 IOS에서 동작하는 app은 사용자에게 훌륭한 사용자 경험을 제공하는 것을 보장 할 필요가 있다. 앱의 디자인과 UI가 좋은 것을 넘어서, 좋은 사용자 경험은 다른 많은 요소들을 포함하고 있다. 사용자는 IOS app을 사용하면서 가능하면 적은 전원을 사용하면서 빠르고 민감하게 반응해야 한다고 생각한다. (fast and responsive) 앱들은 최신 장치를 모두 지원하며 현재 장치도 적합하도록 할 필요가 있다. 이 모든 것들을 구현하는 것은 쉬운 일이 아니지만 IOS는 당신이 이것들을 해내도록 도와줄 것 이다.
 
 
+
+<a name="chapter1"></a>
 
 # chapter 1. Expected App Behaviors
 
@@ -30,7 +41,7 @@ IOS에서 동작하는 app은 사용자에게 훌륭한 사용자 경험을 제�
 
 ### 2. The App Bundle
 
-iOS 앱을 만들 때 Xcode는 그것들을 번들로 묶습니다. 번들은 관련 자원들을 한곳으로 묶는 디렉토리입니다.  iOS 앱 번들에는 앱 실행 파일과 앱 아이콘, 이미지 파일 및 로컬 콘텐츠와 같은 지원 리소스 파일이 포함되어 있습니다.
+iOS 앱을 만들 때 Xcode는 번들로 묶습니다. 번들은 관련 자원들을 한곳으로 묶는 디렉토리입니다.  iOS 앱 번들에는 앱 실행 파일과 앱 아이콘, 이미지 파일 및 로컬 콘텐츠와 같은 지원 리소스 파일이 포함되어 있습니다.
 
 아래 표는 MyApp이라는 앱이 있다고 가정할 때 Bundle에 속하는 file들입니다.
 
@@ -100,14 +111,14 @@ Main 함수에 대해 언급할 한가지는 UIApplicationMain에 컨트롤을 �
 
 * iOS앱은 사실 `UIApplication`이라는 클래스의 객체이다. 프로젝트의 `main` 함수는 기본적으로 `UIApplication` 클래스의 인스턴스를 만들어서 GUI를 사용하기 위한 런루프를 돌려주는 작업을 수행한다. 그리고 그 이후에 앱 내에서 일어나는 모든 처리는 `UIApplication` 객체가 관리하게 된다.
   * 1. 아이폰에서 사용자가 어플리케이션을 Tap 해서 실행
-     undefined해당 어플리케이션의 main 실행
-     undefinedmain 에서 UIApplicationMain() 실행 
-     undefinedAppDelegate 의 applicationDidFinishLaunching: 을 호출
-     undefinedapplicationDidFinishLaunching이 완료되면  EventLoop로 들어감
-     undefined이제부터는 개발자가 코드로 구현한 작업들 수행
-     undefined어플리케이션 종료
-     undefinedAppDelegate의 applicationWillTerminate: 호출
-     undefined어플리케이션 종료
+       undefined해당 어플리케이션의 main 실행
+        undefinedmain 에서 UIApplicationMain() 실행 
+        undefinedAppDelegate 의 applicationDidFinishLaunching: 을 호출
+        undefinedapplicationDidFinishLaunching이 완료되면  EventLoop로 들어감
+        undefined이제부터는 개발자가 코드로 구현한 작업들 수행
+        undefined어플리케이션 종료
+        undefinedAppDelegate의 applicationWillTerminate: 호출
+        undefined어플리케이션 종료
 
 [The role of objects in an iOS app]
 
@@ -127,9 +138,9 @@ Main 함수에 대해 언급할 한가지는 UIApplicationMain에 컨트롤을 �
 ![event_flow](./img/event_flow.PNG)
 
 *  사용자가 기기와 상호 작용할 때 시스템에서 이러한 상호 작용과 관련된 이벤트를 생성 하고 UIKit에 의해 설정된 특수 포트를 통해 앱에 전달됩니다.
-* 이벤트는 앱에 의해 내부적으로 대기열에 넣어지고 실행을 위해 Main Run Loop에 하나씩 전달됩니다. 
-* UIApplication 객체는 이벤트를 수신하여 수행해야 할 작업을 결정하는 첫 번째 객체입니다.
-* 터치 이벤트는 대개 메인 윈도우 객체에 전달되고, 터치는 터치가 발생한 뷰에 전달합니다. 다른 이벤트는 다양한 앱 객체를 통해 약간 다른 경로를 취할 수 있습니다.
+*  이벤트는 앱에 의해 내부적으로 대기열에 넣어지고 실행을 위해 Main Run Loop에 하나씩 전달됩니다. 
+*  UIApplication 객체는 이벤트를 수신하여 수행해야 할 작업을 결정하는 첫 번째 객체입니다.
+*  터치 이벤트는 대개 메인 윈도우 객체에 전달되고, 터치는 터치가 발생한 뷰에 전달합니다. 다른 이벤트는 다양한 앱 객체를 통해 약간 다른 경로를 취할 수 있습니다.
 
 이러한 이벤트 유형의 대부분은 앱의 Main Run Loop를 사용하여 전달되지만 일부 이벤트 유형은 제공되지 않습니다. 일부 이벤트는 델리게이트 객체로 전송되거나 사용자가 제공 한 블록으로 전달됩니다.
 
@@ -159,7 +170,9 @@ Main 함수에 대해 언급할 한가지는 UIApplicationMain에 컨트롤을 �
 
 
 
-- Application의 생명주기 사이 사이 호출되는 메소드들로 이 메소드들을 이용해 어플리케이션의 생명주기에 따른 앱의 관리를 할 수 있다.
+- Application의 생명주기 사이 사이 호출되는 메소드들로 이 메소드들을 이용해 어플리케이션의 생명주기에 따른 앱의 관리를 할 수 있다. 
+
+- 안드로이드의 엑티비티의 역할을 하는 것은 View Controller이며 View Controller 역시 별도의 생명주기를 가지고 있습니다. 안드로이드에서 onResume, onPause에서 하던 현재 상태 저장은 View Controller의 생명 주기 안에서 진행하면 됩니다.
 
   ```
   1. (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -217,6 +230,8 @@ Main 함수에 대해 언급할 한가지는 UIApplicationMain에 컨트롤을 �
 * 긴 작업은 항상 백그라운드 스레드에서 수행해야합니다. 네트워크 액세스, 파일 액세스 또는 대용량 데이터 처리와 관련된 작업은 모두 GCD 또는 작업 객체를 사용하여 비동기 적으로 수행해야합니다.
 * 메인 스레드에서 앱 시작시 작업을 최소화 하십시오. 실행시 앱은 가능한 한 빨리 사용자 인터페이스를 설정할 수있는 시간을 사용해야합니다. 앱시 실행되고 최대한 빨리 사용자가 사용 할 수 있는 Active 상태로 만들기 위해서입니다. 주 스레드에서 사용자 인터페이스 설정에 기여하는 작업만 수행해야합니다. 다른 모든 작업은 비동기 적으로 실행해야하며 결과가 준비되는 즉시 사용자에게 표시됩니다.
 
+<a name=chapter3></a>
+
 ## chapter 3. Background Execution
 
  사용자가 앱을 적극적으로 사용하지 않을 경우 시스템은 앱을 백그라운드 상태로 이동시킵니다. suspended 상태는 배터리 수명을 향상시키는 방법이기도하므로 시스템이 새로운 포 그라운드 앱에 중요한 시스템 리소스를 할당 할 수 있습니다.
@@ -235,4 +250,276 @@ Main 함수에 대해 언급할 한가지는 UIApplicationMain에 컨트롤을 �
 
  백그라운드 상태로 이동한 앱은 시스템에 의해 suspended 상태가 될 수 있도록 가능한 한 빨리 조용한 정지 상태(quiescent state)로 만들어야 합니다.
 
- 만약 앱이 아직 작업 중이거나 작업을 완료하기 위해서 추가 시간이 필요할 경우 UIApplication의`beginBackgroundTaskWithName:expirationHandler:` 혹은 `beginBackgroundTaskWithExpirationHandler:` 메소드를 호출 할 수 있습니다.
+ 만약 앱이 아직 작업 중이거나 작업을 완료하기 위해서 추가 시간이 필요할 경우 UIApplication의`beginBackgroundTaskWithName:expirationHandler:` 혹은 `beginBackgroundTaskWithExpirationHandler:` 메소드를 호출 하여 작업을 완료할 추가 시간을 벌 수 있습니다. 작업이 완료된 후에는  `endBackgroundTask`  메소드를 호출하여 시스템이 작업을 마쳤으며 suspended 상태가 될 수 있음을 알려야합니다.
+
+* `beginBackgroundTaskWithName:expirationHandler:` 혹은 `beginBackgroundTaskWithExpirationHandler:` 를 호출하면 고유한 토큰 값이 생성되고 작업 완료 후 이 토큰과 함께  `endBackgroundTask`  를 호출해야 합니다.
+* 만약,  `endBackgroundTask` 를 호출하지 않는다면 시스템이 앱을 정지시켜 버립니다. 그렇기 때문에 추가 작업을 시작 할 때 만기 핸들러 ( expriationHandeler )를 설정해두면 시스템이 이 핸들러를 호출하면서 앱이 강제 종료 될 위험을 피할 수 있습니다.
+
+ 백그라운드 작업을 진행하기 위해서 앱이 백그라운드로 이동할 때 까지 기다릴 필요 없이 `beginBackgroundTaskWithName:expirationHandler:` 혹은 `beginBackgroundTaskWithExpirationHandler:`를 호출하고 하고 작업을 완료하자 마자  `endBackgroundTask` 를 호출하면 앱이 포어 그라운드 상태에서도 백 그라운드 작업을 완료 할 수 있습니다.
+
+```
+<Starting a background task at quit time>
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+    bgTask = [application beginBackgroundTaskWithName:@"MyTask" expirationHandler:^{
+        // Clean up any unfinished task business by marking where you
+        // stopped or ending the task outright.
+        [application endBackgroundTask:bgTask];
+        bgTask = UIBackgroundTaskInvalid;
+    }];
+ 
+    // Start the long-running task and return immediately.
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+ 
+        // Do the work associated with the task, preferably in chunks.
+ 
+        [application endBackgroundTask:bgTask];
+        bgTask = UIBackgroundTaskInvalid;
+    });
+}
+```
+
+ 자기만의 만기 핸들러를 만들어 필요한 작업이 종료되는데 필요한 작업들을 추가 할 수 있습니다. 하지만 만기 핸들러가 동작한다는 것은 이미 앱의 제한 시간이 거의 끝다는 뜻이기 때문에, 만기 코드에서는 너무 오랜 시간이 걸리지 않아야 합니다. 따라서 만기 핸들러에서는 최소한의 작업만을 진행해야 합니다.
+
+
+
+### 2. Downloading Content in the Background
+
+ 파일을 다운로드 할 때 앱은 NSURLSession 오브젝트를 사용하여 다운로드를 시작해야 앱이 suspended 상태로 넘어가거나 심지어 종료된다 할지라도 다운로드를 진행 할 수 있습니다. 백그라운드 다운로드를 위해서 NSURLSession 객체를 구성해서 시스템에 전달하면 시스템이 별도의 프로세스로 관리하고 상태를 다시 앱에 보고합니다. 시스템에 의해서 다운로드를 진행하고 있던 중 앱이 종료되도 시스템은 다운로드를 계속 진행합니다. 다운로드가 완료된 후 필요하다면 앱을 다시 실행시킬 수 있습니다.
+
+ 백그라운드 전송을 지원하려면 NSURLSession 객체를 적절하게 구성해야합니다. NSURLSession을 구성하려면 먼저 NSURLSessionConfiguration 객체를 만들고 여러 속성을 적절한 값으로 설정해야합니다. 그런 다음 세션을 만들 때 해당 구성 객체를 NSURLSession의 적절한 초기화 메서드에 전달합니다.
+
+
+
+ 백그라운드 다운로드를 위해 만들어야 하는 Configuration 설정은 다음과 같습니다.
+
+1. `NSURLSessionConfiguration`의 `backgroundSessionConfigurationWithIdentifier :` 메소드를 사용하여 구성 객체를 만듭니다.
+2. 구성 개체의 `sessionSendsLaunchEvents` 속성 값을 `YES`로 설정합니다.
+3. 만약에 포어 그라운드 상태에서 전송을 시작한다면, configuration 객체의 `discretionary`  속성도 역시 `YES`로 만드는 것을 권장합니다.
+4. configuration 객체의 다른 특성도을 적절하게 구성하십시오.
+5. 이 Configuration 객체를 이용해서 `NSURLSession` 객체를 생성하십시오.
+
+ 일단 구성되면, `NSURLSession` 객체는 업로드나 다운로드 작업을 시스템에 전달합니다. 앱이 실행 중에 작업이 완료되면(포어그라운드 상태이든 백그라운드 상태이든 상관 없이), 세션 객체는 델리게이트에 작업 종료를 알립니다.  만약 작업이 끝나지 않은 상태에서 시스템이 앱을 종료시켜 버린다면 다운로드 작업은 시스템에 의해서 관리됩니다. 하지만 사용자가 원해서 앱을 종료시키게 된다면 시스템은 전송 작업을 중지합니다.
+
+
+
+ sessionSendsLaunchEvents 속성이 YES로 설정되었고 사용자가 앱을 강제 종료하지 않았다고 가정합시다.
+
+ 백그라운드 세션과 관련된 모든 작업이 완료되면 시스템은 종료 된 응용 프로그램을 다시 실행하고 응용 프로그램 대리인의 `application : handleEventsForBackgroundURLSession : completionHandler : `메서드를 호출합니다.
+
+(시스템은 인증 문제 또는 앱의 주의가 필요한 이벤트를 처리하기 위해 앱을 다시 실행할 수도 있습니다.)
+
+ 이 경우 기존에 요청했던 동일한 설정으로 `NSURLSessionConfiguration` 및 `NSURLSession` 객체를 만듭니다. 시스템은 새 세션 개체를 이전 작업에 다시 연결하고 해당 상태를 세션 개체의 델리게이트에게보고합니다.
+
+
+
+### 3. Implementing Long-Running Tasks
+
+ 수행하는데 긴 시간이 걸리는 작업들 백그라운드에서 수행하기 위해서 구현할 때에는 앱이 백그라운드에서 Suspended 상태로 넘어가지 않게 하기 위해서 특정 권한을 요청해야 합니다.
+
+* 음악 플레이어 앱과 같이 백그라운드에서 사용자에게 오디오 콘텐츠를 재생하는 앱
+* 백그라운드에서 오디오 콘텐츠를 기록하는 앱 (녹음 앱 같이)
+* 사용자가 내비게이션 앱과 같이 항상 내 위치를 계속 알려주는 앱
+* VoIP (Voice over Internet Protocol)를 지원하는 응용 프로그램
+* 새 콘텐츠를 정기적으로 다운로드하고 처리해야하는 앱
+* 외부 액세서리를 정기적으로 업데이트하는 앱
+
+ 이러한 백그라운드 서비스를 구현하는 앱은 지원하는 서비스를 선언하고 해당 서비스와 관련된 내용을 사용하기 위해서 시스템 프레임워크를 사용해야 합니다.
+
+
+
+TODO: 무슨 말인지 잘 이해가 안된다.
+
+(Apps that implement these services must declare the services they support and use system frameworks to implement the relevant aspects of those services. Declaring the services lets the system know which services you use, but in some cases it is the system frameworks that actually prevent your application from being suspended.) 
+
+* #### Declaring Your App’s Supported Background Tasks
+
+  * 일부 백그라운드 작업들은 그것들을 수행하기 위해서 반드시 추가적인 선언이 필요하다. Xcode5 버전 이후로는 이런 백그라운드 모드들을 프로젝트 셋팅의 `Capabilities `탭에서 선언이 가능하다. 이런 백그라운드 모드들을 추가하기 위해서는 앱의  `Info.plist`파일에  `UIBackgroundModes` key를 추가해줘야 한다.
+  * 아래 표는 Xcode의 `UIBackgroundModes` key에서선택할 수 있는 백그라운운드 모드들이다.
+
+  | Xcode background mode            | UIBackgroundModes value | Description                              |
+  | -------------------------------- | ----------------------- | ---------------------------------------- |
+  | Audio and AirPlay                | `audio`                 | 앱은 오디오 콘텐츠나 녹음을 백그라운드에 재생할 수 있다. (이런 콘텐츠들은 오디오 스트리밍이나 AirPlay를 이용한 비디오 재생도 포함한다.) 사용자는 처음 사용하기 전에 앱에서 마이크 사용 권한을 허가해야 한다. |
+  | Location updates                 | `location`              | 앱은 백그라운드 상태에서도 지속적으로 위치 정보를 갱신해야 한다.     |
+  | Voice over IP                    | `voip`                  | 앱은 인터넷을 이용한 통화 기능을 사용자에게 제공해야한다.         |
+  | Newsstand downloads              | `newsstand-content`     | 뉴스앱은 백그라운드에서도 잡지나 신문의 내용을 다운로드 할 수 있는 옵션입니다. |
+  | External accessory communication | `external-accessory`    | 외부의 하드웨어 악세사리들의 업데이트를 진행하기 위해서 이 옵션이 필요합니다. |
+  | Uses Bluetooth LE accessories    | `bluetooth-central`     | 이 옵션은 Core Core Bluetooth framework를 통해서 정기적인 블루투스 악세사리의 정기적인 업데이트를 지원해야 합니다. |
+  | Acts as a Bluetooth LE accessory | `bluetooth-peripheral`  | 이 옵션은 블루투스 통신을 하기 위해서 이 옵션이 필요합니다.       |
+  | Background fetch                 | `fetch`                 | 정기적으로 네트워크에서 소량의 데이터를 다운받기 위해서 이 옵션이 필요합니다. |
+  | Remote notifications             | `remote-notification`   | 푸시 알림이 도착하면 앱에서 콘텐츠 다운로드르 시작하려고 합니다. 이 옵션은 푸시 알림과 관련된 콘텐츠를 표시하는데 걸리는 시간을 최소화 합니다. |
+
+   위의 각 모드는 관련 이벤트에 응답하기 위해 백그라운드에서 앱이 깨어나거나 시작되어야한다는 것을 시스템에 알립니다. 예를 들어 음악 재생을 시작한 다음 바탕화면으로 이동한 앱은 오디오 출력 버퍼를 채우기 위한 실행 시간이 필요합니다. 오디오 버퍼를 채우기 위해서 적절한 간격으로 시스템 프레임 워크에 콜백 메세지를 계속 날려 작업을 합니다. 이 모드를 선택하지 않으면 앱이 배경으로 이동할 때 앱에서 재생 또는 녹음되는 오디오가 중지됩니다.
+
+* ### Tracking the User’s Location
+
+   백그라운드에서 사용자의 위치를 추적하는 데는 여러 가지 방법이 있습니다. 대부분의 경우 앱이 백그라운드에서 계속 실행될 필요가 없습니다.
+
+  - 극적인 변경 위치 서비스? (The significant-change location service) - (권장됨)
+  - 오직 포어 그라운드에서만 진행하는 위치 서비스
+  - 백그라운드에서 실행되는 위치 서비스
+
+  **The significant-change location service**
+
+  >  극적인 변경 위치 서비스는 정확한 위치 데이터가 필요 없는 앱에서 추천됩니다. 이 서비스는 오직 사용자의 위치가 극적으로 변경될 때만 업데이트 됩니다.그러므로 이것은 소셜앱이나 위치와 연관되서 큰 위험이 없는 앱에서 사용됩니다. 만약 위치가 업데이트 될 때 앱이 suppended 상태라면, 시스템은 백그라운드에서 이 앱을 깨웁니다. 앱이 종료된 상태에서 새 위치를 사용할 수있게되면 시스템이 자동으로 응용 프로그램을 다시 실행합니다. 이 서비스는 iOS 4 이상에서 사용할 수 있으며 휴대 전화가있는 기기에서만 사용할 수 있습니다.
+
+  **표준 위치 기반 서비스**
+
+    포 그라운드 전용 및 백그라운드 위치 서비스는 모두 표준 위치 핵심 위치 서비스를 사용하여 위치 데이터를 검색합니다. 유일한 차이점은 포 그라운드 전용 위치 서비스는 앱이 일시 중지 된 경우 업데이트를 제공하지 않기 때문입니다. 앱이 다른 백그라운드 서비스 나 작업을 지원하지 않을 경우 발생할 수 있습니다. 포 그라운드 전용 위치 서비스는 포 그라운드에서 위치 데이터 만 필요로하는 앱을 대상으로합니다.
+
+표준 위치기반 서비스는 위치 기반 하드웨어를 계속 사용하기 때문에 배터리를 많이 소비합니다. 앱이 계속 정확한 위치를 정보를 제공할 필요가 없다면 The significant-change location service를 사용하는 것이 좋습니다.
+
+* ### Playing and Recording Background Audio
+
+  백그라운에서도 오디오를 계속 재생하거나 녹음하는 앱은 해당 작업을 계속 수행하기 위해서는 UIBackgroundModes 키를 포함시켜이 지원을 활성화 할 수도 있습니다.
+
+  * 배경 오디오 앱의 일반적인 예는 다음과 같습니다.
+    * 뮤직 플레이어 앱
+    * 오디오 녹음 앱
+    * AirPlay를 통해 오디오 또는 비디오 재생을 지원하는 애플리케이션
+    * VoIP 앱
+
+   UIBackgroundModes 키에 오디오 값이 포함되어 있으면 시스템의 **미디어 프레임워크**가 자동으로 해당 앱이 백그라운드로 이동할 때 일시 중지되지 않도록합니다. 오디오 또는 비디오 콘텐츠를 재생하거나 오디오 콘텐츠를 녹음하는 동안 앱은 백그라운드에서 계속 실행됩니다. 그러나 녹화 또는 재생이 중지되면 시스템에서 앱을 일시 중지합니다.
+
+   미디어 프레임워크에 동시에 여러 오디오 재생을 요청하게 되면 우선순위를 매겨 처리하는데, 포어 그라운드의 앱이 가장 높은 우선 순위를 가집니다.
+
+* ### Implementing a VoIP App
+
+   VoIP 앱을 통해서 사용자는 디바이스의 전화 서비스 대신에 인터넷 서비스를 이용해서 전화를 걸 수 있습니다. 이러한 앱은 지속적으로 네트워크를 연결해야 하는데, 앱을 항상 실행시키고 있는 것 보다 소켓을 모니터링 하는 기능을 제공합니다. 시스템은 소켓에 트래픽이 들어오는 것을 감지하면 앱을 깨우고 제어권을 넘깁니다.
+
+  VoIP 응용 프로그램을 구성하려면 다음을 수행해야합니다.:
+
+  * Xcode 프로젝트의 Capabilities 탭에있는 Background modes 섹션에서 Voice over IP 지원을 활성화하십시오. 
+  * VoIP 사용을 위해 앱 소켓 중 하나를 설정하십시오.
+  * 백그라운드로 이동하기 전에 `setKeepAliveTimeout : handler :` 메소드를 호출하여 주기적으로 실행될 핸들러를 설치하십시오. 앱은 이 핸들러를 사용하여 서비스 연결을 유지 관리 할 수 있습니다.
+  * 오디오 세션을 구성하여 활성 사용과의 전환을 처리하십시오.
+
+   백그라운드에서 오디오를 전달하려면 대부분의 VoIP 응용 프로그램을 백그라운드 오디오 응용 프로그램으로 구성해야합니다. 따라서 `UIBackgroundModes` 키에 오디오 및 VoIP 값을 모두 포함해야합니다. 이렇게하지 않으면 배경에있는 동안 앱에서 오디오를 재생하거나 녹음 할 수 없습니다.
+
+* ### Fetching Small Amounts of Content Opportunistically
+
+   새로운 콘텐츠를 주기적으로 확인해야하는 앱은 시스템에 깨어나서 해당 콘텐츠에 대한 가져 오기 작업을 시작할 수 있도록 요청할 수 있습니다. 이 모드를 지원하려면 Xcode 프로젝트의 Capabilities 탭에있는 Background modes 섹션에서 Background fetch 옵션을 활성화하십시오.
+
+* ### Using Push Notifications to Initiate a Download
+
+   앱에서 새 콘텐츠를 사용할 수있을 때 서버가 사용자의 기기에 푸시 알림을 보내는 경우, 백그라운드에서 앱을 실행하도록 시스템에 요청하여 새로운 콘텐츠를 즉시 다운로드 할 수 있도록 할 수 있습니다. 이 백그라운드 모드의 의도는 사용자가 푸시 알림을 볼 때와 앱이 관련 콘텐츠를 표시 할 수있을 때까지 경과하는 시간을 최소화하는 것입니다. 앱은 대개 사용자가 알림을 보는 것과 거의 동시에 깨우지 만, 그렇지 않은 경우보다 많은 시간을 제공합니다.
+
+* ### Downloading Newsstand Content in the Background
+
+   새로운 잡지 또는 신문 발행물을 다운로드하는 뉴스 스탠드 앱을 등록하면 해당 다운로드를 백그라운드에서 수행 할 수 있습니다. Xcode 프로젝트의 기능 탭에있는 배경 모드 섹션에서 뉴스 스탠드 다운로드를 지원합니다. 앱의 Info.plist 파일에 뉴스 스탠드 콘텐츠 값이있는 UIBackgroundModes 키를 포함하여이 지원을 활성화 할 수도 있습니다.
+
+* ### Communicating with an External Accessory
+
+   앱이 일시 중지되었을 때 액세서리가 업데이트를 제공하면 외부 액세서리로 작동하는 앱에서 깨우쳐달라고 요청할 수 있습니다. 이러한 지원은 심장 박동 모니터와 같이 일정한 간격으로 데이터를 전송하는 일부 유형의 액세서리에 중요합니다. 외부 액세서리 통신은 Xcode 프로젝트의 Capabilities 탭에있는 Background modes 섹션에서 지원됩니다. 앱의 Info.plist 파일에 외부 액세서리 값과 함께 UIBackgroundModes 키를 포함시켜이 지원을 활성화 할 수도 있습니다.이 모드를 사용하면 외부 액세서리 프레임 워크가 액세서리가 포함 된 활성 세션을 닫지 않습니다. **(iOS 4 및 이전 버전에서는 앱이 일시 중지되면 해당 세션이 자동으로 종료됩니다.)** 액세서리에서 새 데이터가 도착하면 프레임 워크는 앱을 가동하여 해당 데이터를 처리 할 수있게합니다. 또한 시스템은 액세서리 연결 및 연결 해제 알림을 처리하도록 앱을 작동시킵니다.
+
+  액세서리 업데이트의 백그라운드 처리를 지원하는 앱은 다음과 같은 몇 가지 기본 지침을 따라야합니다.
+
+  * 앱은 사용자가 액세서리 업데이트 이벤트를 시작하고 중지 할 수있는 인터페이스를 제공해야합니다. 그 인터페이스는 적절하게 액세서리 세션을 열거 나 닫아야합니다.
+  * 깨어나면 앱은 데이터를 처리하는 데 약 10 초가 걸립니다. 이상적으로는 가능한 한 빨리 데이터를 처리하고 다시 일시 중단해야합니다. 그러나 더 많은 시간이 필요한 경우 앱은 `beginBackgroundTaskWithExpirationHandler :` 메서드를 사용하여 추가 시간을 요청할 수 있습니다. 그것은 꼭 필요한 경우에만 그렇게해야합니다.
+
+* ### Communicating with a Bluetooth Accessory
+
+   블루투스 주변 기기와 함께 작동하는 앱은 앱이 일시 중지되었을 때 주변 기기가 업데이트를 제공하면 깨우쳐달라고 요청할 수 있습니다. 이 지원은 블루투스 심장 박동 벨트와 같이 일정한 간격으로 데이터를 전송하는 Bluetooth-LE 액세서리에서 중요합니다. Xcode 프로젝트의 Capabilities 탭에있는 Background modes 섹션에서 블루투스 액세서리를 사용할 수 있도록 지원합니다. (이 앱의 Info.plist 파일에 bluetooth-central 값과 함께 UIBackgroundModes 키를 포함시켜이 지원을 활성화 할 수도 있습니다.)이 모드를 활성화하면 핵심 블루투스 프레임 워크가 해당 주변 기기의 활성 세션을 계속 열어 둡니다. 또한 주변 장치에서 새로운 데이터가 도착하면 시스템에서 데이터를 처리 할 수 있도록 앱을 시작합니다. 또한 시스템은 액세서리 연결 및 연결 해제 알림을 처리하기 위해 앱을 작동시킵니다.
+
+### 4. Getting the User’s Attention While in the Background
+
+ 백그라운 상태의 앱은 알림을 이용해서 사용자의 관심을 끌 수 있습니다. 앱은 로컬 알림, 소리, 아이콘 배지 등을 이용해서 사용자의 관심을 끌 수 있습니다. 예를 들어, 알람 시계 앱은 로컬 알림을 사용하여 알람 소리를 재생하고 알람을 표시하여 알람을 비활성화 할 수 있습니다.
+
+ 로컬 알림 전달을 예약하려면 UILocalNotification 클래스의 인스턴스를 만들고 알림 매개 변수를 구성한 다음 UIApplication 클래스의 메서드를 사용하여 일정을 예약하십시오. 로컬 알림 개체에는 전달할 알림 유형 (사운드, 경고 또는 배지) 및 해당 알림을 전달할 시간 (적용 가능한 경우)에 대한 정보가 들어 있습니다. UIApplication 클래스의 메서드는 즉시 또는 예약 된 시간에 알림을 전달하는 옵션을 제공합니다.
+
+ 아래 코드는 사용자가 설정한 날자와 시간을 사용해서 단일 알람을 만들어 주는 코드입니다.
+
+```
+- (void)scheduleAlarmForDate:(NSDate*)theDate
+{
+    UIApplication* app = [UIApplication sharedApplication];
+    NSArray*    oldNotifications = [app scheduledLocalNotifications];
+ 
+    // Clear out the old notification before scheduling a new one.
+    if ([oldNotifications count] > 0)
+        [app cancelAllLocalNotifications];
+ 
+    // Create a new notification.
+    UILocalNotification* alarm = [[UILocalNotification alloc] init];
+    if (alarm)
+    {
+        alarm.fireDate = theDate;
+        alarm.timeZone = [NSTimeZone defaultTimeZone];
+        alarm.repeatInterval = 0;
+        alarm.soundName = @"alarmsound.caf";
+        alarm.alertBody = @"Time to wake up!";
+ 
+        [app scheduleLocalNotification:alarm];
+    }
+}
+```
+
+### 5. Understanding When Your App Gets Launched into the Background
+
+ 백그라운드 실행을 지원하는 앱은 들어오는 이벤트를 처리하기 위해 시스템에서 다시 시작할 수 있습니다. 사용자 강제 종료 이외의 다른 이유로 앱이 종료 된 경우 다음 이벤트 중 하나가 발생하면 시스템이 앱을 실행합니다.
+
+다음과 같은 경우에 시스템이 앱을 재실행 시킬 수 있습니다.
+
+* 위치 앱용 :
+  * 시스템은 앱의 구성된 게재 기준을 충족하는 위치 업데이트를 수신합니다.
+  * 장치가 등록 된 영역에 들어가거나 나갔습니다.
+* 오디오 앱의 경우 오디오 프레임 워크는 일부 데이터를 처리하기 위해 앱이 필요합니다. 이 경우 프레임워크 시스템이 앱을 재 실행 시킬 수있습니다.
+* 블루투스 앱의 경우 :
+  * 중앙 역할을하는 앱은 연결된 주변 기기에서 데이터를 수신합니다.
+  * 주변 역할로 작동하는 앱은 연결된 중앙에서 명령을받습니다.
+* 백그라운드 다운로드 앱 :
+  * 푸시 알림이 앱에 도착하고 알림의 페이로드에 값 1이있는 콘텐츠 사용 가능한 키가 포함됩니다.
+  * 시스템은 새로운 콘텐츠를 다운로드하기 위해 기회가되는 순간에 앱을 깨 웁니다.
+  * NSURLSession 클래스를 사용하여 백그라운드에서 콘텐츠를 다운로드하는 앱의 경우 해당 세션 개체 관련된 모든 작업이 성공적으로 완료되었거나 오류가 발생했을 때 깨웁니다.
+  * 뉴스 스탠드 앱이 시작한 다운로드가 완료됩니다.
+
+ 대부분의 경우 사용자가 강제 종료한 앱은 재실행 되지 않습니다. 한 가지 예외는 iOS 8 이상의 위치 앱입니다. 이 경우 사용자가 명시적으로 재 실행 되는것을 요청하거나 기기가 다시 실행 되어야 적용됩니다. 기기가 잠겨있으면 사용자가 먼저 기기를 잠금 해제하기 전에 백그라운드에서 앱이 실행되지 않습니다.
+
+### 6. Being a Responsible Background App
+
+ 포어 그라운드 앱은 시스템 리소스 및 하드웨어 사용과 관련하여 항상 백그라운드 앱보다 우선합니다. 백그라운드에서 실행되는 앱은 이러한 불일치에 대비하고 백그라운드에서 실행될 때 동작을 조정해야합니다. 특히 배경으로 이동하는 앱은 다음 가이드 라인을 따라야합니다.
+
+* **코드에서 OpenGL ES 호출을하지 마십시오.** - 백그라운드에서 드로윙 객체를 만들거나 호출 해서는 안됩니다. 이 호출을 사용하면 앱이 강제 종료됩니다. 앱은 백그라운드로 이동하기 전에 OpneGL 관련 명령들을 완료해야 합니다.
+* **suspended 되기 전에 Bonjour-related services를 취소하십시오.** - 백그라운드로 넘어가기 전에 Bonjour-related services를 취소하고 네트워크 서비스와 관련된 수신 대기 소켓을 닫아야합니다. Bonjour 서비스를 직접 종료하지 않으면 앱이 일시 중지되었을 때 자동으로 서비스가 종료됩니다. [봉주르란?](https://ko.wikipedia.org/wiki/%EB%B4%89%EC%A3%BC%EB%A5%B4_(%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4))
+* **네트워크 기반 소켓에서 연결 실패를 처리 할 수 있도록 준비하십시오.** - 시스템은 여러 가지 이유로 앱이 일시 중지 된 동안 소켓 연결을 끊을 수 있습니다. 소켓 기반 코드가 신호 손실이나 네트워크 전환과 같은 다른 유형의 네트워크 오류에 대비되어 있어 문제가 발생하지 않아야합니다.
+* **백그라운드로 이동하기 전에 앱 상태를 저장하십시오 **-  메모리가 부족한 상태에서 백그라운드 앱을 정지시켜 메모리를 확보 할 수 있습니다.
+* **백그라운드로 이동할 때 불필요한 객체에 대한 강한 참조를 제거하십시오.**
+* **일시 중지되기 전에 공유 시스템 자원 사용을 중지하십시오.** - 주소록이나 캘린더 데이터베이스와 같은 공유 시스템 리소스와 상호 작용하는 앱은 일시 중지되기 전에 해당 리소스의 사용을 중지해야합니다. 이러한 리소스의 우선 순위는 항상 포 그라운드 앱으로 이동합니다. 앱이 일시 중지 된 경우 공유 리소스를 사용하고있는 것으로 확인되면 앱이 종료됩니다.
+* **윈도우나 뷰를 업데이트 하지 말아야 합니다.** - 백그라운드 상태에서 앱의 윈도우나 뷰가 보이지 않기 때문에 업데이트 해서는 안됩니다.
+* **외부 액세서리에 대한 연결 알림 및 연결 해제 알림에 응답 할 수 있도록 해야 합니다.** - 외부 액세서리와 통신하는 앱의 경우 앱이 배경으로 이동할 때 시스템에서 자동으로 연결 해제 알림을 보냅니다. 앱은 이 알림을 받고 현재 알림 세션을 닫는 데 사용해야합니다. 앱이 포 그라운드로 다시 이동하면 일치하는 연결 알림이 전송되어 앱에 다시 연결할 수 있습니다.
+* **백그라운드로 이동할 때 활성화 된 얼럿창의 자원을 정리해야 합니다.** - 앱을 전환 할 때 컨텍스트를 유지하기 위해 앱이 배경으로 이동할 때 시스템이 자동으로 작업 시트 (UIActionSheet) 또는 경고보기 (UIAlertView)를 닫지 않습니다. 
+* **백그라운드로 이동하기 전에 뷰에서 중요한 정보를 제거하십시오.** - 앱이 백그라운드로 전환되면현재 화면을 저장한 스냅샷이 생성됩니다. 이 스냅샷은 앱이 다시 포어 그라운드로 전환 될 때 잠깐 보여지는데 `applicationDidEnterBackground :` 에서 캡처 될 수 있는 암호나 개인 정보를 숨겨야 합니다.
+* 백그라운드에서 실행되는 작업은 최소한으로 수행하십시오. - 백그라운드에서 주어진 실행 시간은 포어 그라운드에서보더 더 제한됩니다.
+
+### 7. Opting Out of Background Execution
+
+ 앱을 백그라운드에서 실행하지 않으려면 앱의 Info.plist 파일에 UIApplicationExitsOnSuspend 키 (값이 YES 인)를 추가하여 백그라운드를 명시적으로 선택 해제 할 수 있습니다. 앱이 선택 해제되면 not running, inactive 및 active 상태 사이를 순환하며 백그라운드 나 suspended 상태로 들어 가지 않습니다. 사용자가 홈 버튼을 눌러 앱을 종료하면 델리게이트의 applicationWillTerminate : 메소드가 호출되고 앱이 종료되고 종료되기 전에 약 5 초 동안 정리 및 종료되어 다시 실행되지 않는 상태로 돌아갑니다.
+
+ 백그라운드 실행을 선택 해제하는 것은 권장하지 않지만 특정 조건에서는 기본 옵션이 될 수 있습니다. 특히 배경 실행 코딩이 앱에 상당한 복잡성을 추가하는 경우 앱 종료는 더 간단한 해결책 일 수 있습니다. 또한 앱이 많은 양의 메모리를 소비하고 쉽게 메모리를 해제 할 수없는 경우 시스템이 앱을 빠르게 종료하여 다른 앱을위한 공간을 확보 할 수 있습니다. 따라서 백그라운드로 전환하는 대신 종료를 선택하면 동일한 결과가 발생하고 개발 시간과 노력을 절약 할 수 있습니다.
+
+
+
+<a name=chapter4></a>
+
+## Chapter 4. Strategies for Handling App State Transitions
+
+ 런타임 중 모든 앱의 상태에 대해서 시스템은 각각에 다른 예상을 가지고 있습니다. 상태의 전환이 일어나면 시스템은 앱에 알리고 앱은 앱의 델리게이트에 알립니다. UIApplicationDelegate 프로토콜의 상태 전이 메소드를 사용하여 이러한 상태 변경을 감지하고 적절히 대응할 수 있습니다. 예를 들어 포어그라운드에서 백 그라운드로 전환 할 때 저장되지 않은 데이터를 기록하고 진행중인 작업을 중지 할 수 있습니다. 다음 섹션에서는 상태 전환 코드를 구현하는 방법에 대한 팁과 지침을 제공합니다. (안드로이드의 액티비티 생명주기로 앱의 상태를 저장하는 것처럼 IOS도 상태가 전환되기 전에 호출되는 메소드들을 이용해서 상태를 저장 할 수 있다.)
+
+* ### What to Do at Launch Time
+
+  * 앱이 실행되면 델리게이트의 `application:willFinishLaunchingWithOptions:` 메소드와`application:didFinishLaunchingWithOptions:`메소드가 호출됩니다.
+    * 앱의 중요한 데이터 구조를 초기화하십시오.
+    * 앱의 윈도우와 뷰를 준비하십시오. (단, OpenGL을 사용하는 경우 아직 화면이 그려질 준비가 되지 않았기 때문에 여기서 드로윙을 하면 안됩니다.)
+  * 앱시 실행되면 시스템은 자동으로 앱의 메인 스토리 보드 파일과 초기 뷰 컨트롤러를 로드합니다. 상태 복원을 지원하는 앱의 경우에는 이곳에서 저장되어있는 인터페이스나 과거의 상태를 복원합니다.
+  * `application:didFinishLaunchingWithOptions:` 메소드를 호출하여 복원이 완료된 앱의 윈도우를 보여줄 수 있습니다.
+  * 앱의 초기 작업은 최소화해야 합니다. 앱이 실행되고 5초 이내에 응답하지 않으면 시스템이 앱을 종료합니다. 따라서 앱의 실행 속도를 늦출 수 있는 작업의 경우 (예를 들어 네트워크 통신) 별도의 스레드를 만들어서 처리해야 합니다.
+  * ![라이프사이클](./img/life_cycle.PNG)
+  * ​
+
+* ### What to Do When Your App Is Interrupted Temporarily
+
+* ### What to Do When Your App Enters the Foreground
+
+* ### What to Do When Your App Enters the Background
+
